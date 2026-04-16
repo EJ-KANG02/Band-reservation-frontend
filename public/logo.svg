@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#000000"/>
+
+  <!-- Decorative top line -->
+  <line x1="96" y1="140" x2="416" y2="140" stroke="#2a2a2a" stroke-width="1.5"/>
+
+  <!-- FD monogram -->
+  <text
+    x="50%"
+    y="46%"
+    dominant-baseline="middle"
+    text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="210"
+    font-weight="700"
+    fill="white"
+    letter-spacing="-8"
+  >FD</text>
+
+  <!-- Decorative bottom line -->
+  <line x1="96" y1="330" x2="416" y2="330" stroke="#2a2a2a" stroke-width="1.5"/>
+
+  <!-- Band name -->
+  <text
+    x="50%"
+    y="79%"
+    dominant-baseline="middle"
+    text-anchor="middle"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="34"
+    font-weight="300"
+    fill="#666666"
+    letter-spacing="10"
+  >FEARLESS DAWN</text>
+</svg>
