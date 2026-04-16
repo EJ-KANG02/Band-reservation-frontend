@@ -33,12 +33,7 @@ export default function OnboardingPage() {
                   transition-opacity duration-700 ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
       <div className="flex flex-col items-center gap-4">
-        <FDLogo size={56} />
-
-        <div className="text-center mt-1">
-          <p className="text-white text-2xl font-bold tracking-[0.3em]">FEARLESS</p>
-          <p className="text-white text-2xl font-bold tracking-[0.3em]">DAWN</p>
-        </div>
+        <FDLogo size={160} />
 
         {nickname && (
           <p className="text-zinc-500 text-sm mt-3">

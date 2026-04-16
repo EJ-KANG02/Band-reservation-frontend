@@ -106,11 +106,14 @@ export default function WithdrawPage() {
 
 function FDLogo({ className = '' }) {
   return (
-    <svg width="60" height="50" viewBox="0 0 60 50" fill="none" className={className}>
-      <rect x="2" y="20" width="14" height="30" rx="3" fill="#3f3f46" />
-      <rect x="23" y="5" width="14" height="45" rx="3" fill="#3f3f46" />
-      <rect x="44" y="12" width="14" height="38" rx="3" fill="#3f3f46" />
-    </svg>
+    <img
+      src="/fd-logo.png"
+      alt="FEARLESS DAWN"
+      width={60}
+      height={60}
+      className={className}
+      style={{ objectFit: 'contain', opacity: 0.3 }}
+    />
   )
 }
 

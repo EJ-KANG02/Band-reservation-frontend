@@ -25,15 +25,7 @@ export default function LoginPage() {
 
       {/* 브랜드 영역 — 화면 중앙을 차지 */}
       <div className="flex-1 flex flex-col items-center justify-center gap-5">
-        <FDLogo size={52} />
-        <div className="text-center">
-          <h1 className="text-white text-[28px] font-bold tracking-[0.3em] leading-snug">
-            FEARLESS
-          </h1>
-          <h1 className="text-white text-[28px] font-bold tracking-[0.3em] leading-snug">
-            DAWN
-          </h1>
-        </div>
+        <FDLogo size={160} />
         <p className="text-zinc-600 text-xs tracking-widest mt-1">
           합주 · 드럼 예약 서비스
         </p>

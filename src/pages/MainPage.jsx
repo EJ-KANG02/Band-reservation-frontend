@@ -36,13 +36,7 @@ export default function MainPage() {
 
       {/* 로고 + 인사 — 화면 중앙 */}
       <div className="flex-1 flex flex-col items-center justify-center">
-        <FDLogo size={52} />
-        <p className="text-white text-[26px] font-bold tracking-[0.3em] leading-snug mt-6">
-          FEARLESS
-        </p>
-        <p className="text-white text-[26px] font-bold tracking-[0.3em] leading-snug">
-          DAWN
-        </p>
+        <FDLogo size={160} />
 
         {nickname ? (
           <p className="text-zinc-500 text-sm mt-5">
