@@ -56,15 +56,10 @@ export default function OAuthCallbackPage() {
       }
     }
 
-    // 1. getSession으로 세션 먼저 확인 (새로고침 등 세션이 이미 있는 경우)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) processSession(session)
-    })
-
-    // 2. PKCE 코드 교환 완료 대기 (OAuth 콜백 직후, 세션이 없는 경우)
+    // PKCE 코드 교환 완료 대기 (onAuthStateChange만 사용 — 중복 교환 방지)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
           processSession(session)
         }
       }

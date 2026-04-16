@@ -7,7 +7,6 @@ export default function LoginPage() {
 
   const handleKakaoLogin = async () => {
     setLoading(true)
-    await supabase.auth.signOut() // 기존 세션 제거 → 카카오 로그인 화면 강제
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
       options: {
