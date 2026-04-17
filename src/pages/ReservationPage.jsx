@@ -217,6 +217,7 @@ export default function ReservationPage() {
           })
           navigate('/mypage/reservations')
         } catch (err) {
+          console.error('update error response:', err.response?.data)
           setError(err.response?.data?.message || '수정에 실패했습니다.')
         }
         return
@@ -231,6 +232,7 @@ export default function ReservationPage() {
         navigate('/schedule')
       }
     } catch (err) {
+      console.error('create error response:', err.response?.data)
       setError(err.response?.data?.message || (isEditMode ? '수정에 실패했습니다.' : '예약에 실패했습니다.'))
     } finally {
       setSubmitting(false)
