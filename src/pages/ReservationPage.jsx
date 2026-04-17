@@ -217,11 +217,7 @@ export default function ReservationPage() {
           })
           navigate('/mypage/reservations')
         } catch (err) {
-          if (err.response?.status === 403) {
-            setError('본인의 예약만 수정할 수 있습니다.')
-          } else {
-            setError(err.response?.data?.message || err.message || '수정에 실패했습니다.')
-          }
+          setError(err.response?.data?.message || '수정에 실패했습니다.')
         }
         return
       } else {
@@ -235,7 +231,7 @@ export default function ReservationPage() {
         navigate('/schedule')
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || isEditMode ? '수정에 실패했습니다.' : '예약에 실패했습니다.')
+      setError(err.response?.data?.message || (isEditMode ? '수정에 실패했습니다.' : '예약에 실패했습니다.'))
     } finally {
       setSubmitting(false)
     }
