@@ -341,7 +341,7 @@ export default function ReservationPage() {
                 accentColor={accentColor}
                 onSlotMouseDown={startDrag}
                 onSlotMouseEnter={updateDrag}
-                onSlotTouchStart={startDrag}
+                onContainerTouchStart={startDrag}
                 onMouseUp={endDrag}
                 onTouchEnd={endDrag}
               />
@@ -569,15 +569,23 @@ const TimeGrid = ({
   accentColor,
   onSlotMouseDown,
   onSlotMouseEnter,
-  onSlotTouchStart,
+  onContainerTouchStart,
   onMouseUp,
   onTouchEnd,
 }) => {
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0]
+    const el = document.elementFromPoint(touch.clientX, touch.clientY)
+    const slot = el?.closest('[data-slot-idx]')
+    if (slot) onContainerTouchStart(Number(slot.dataset.slotIdx))
+  }
+
   return (
     <div
       ref={containerRef}
       className="rounded-2xl overflow-hidden border border-zinc-900 select-none touch-none"
       onMouseUp={onMouseUp}
+      onTouchStart={handleTouchStart}
       onTouchEnd={onTouchEnd}
       onMouseLeave={onMouseUp}
     >
@@ -605,10 +613,6 @@ const TimeGrid = ({
             className={`flex items-center ${borderClass} ${slotColor} transition-colors`}
             onMouseDown={() => onSlotMouseDown(idx)}
             onMouseEnter={() => onSlotMouseEnter(idx)}
-            onTouchStart={(e) => {
-              e.preventDefault()
-              onSlotTouchStart(idx)
-            }}
           >
             {/* 시간 레이블 */}
             <span className="w-12 text-right pr-2.5 shrink-0 text-zinc-700 text-[10px]">
