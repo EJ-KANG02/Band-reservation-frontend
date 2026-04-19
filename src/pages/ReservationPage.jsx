@@ -138,10 +138,6 @@ export default function ReservationPage() {
       .finally(() => setAvailLoading(false))
   }, [selectedDate])
 
-  // startDrag를 ref로 유지 — 클로저 stale 방지
-  const startDragRef = useRef(null)
-  startDragRef.current = startDrag
-
   // ── 터치 (non-passive) 리스너 — selectedDate가 생긴 후 TimeGrid가 마운트되므로 의존성 추가
   useEffect(() => {
     if (!selectedDate) return
@@ -200,6 +196,9 @@ export default function ReservationPage() {
     setIsDragging(true)
     setDragCurrent(idx)
   }
+  // startDrag를 ref로 유지 — 터치 리스너 클로저 stale 방지
+  const startDragRef = useRef(null)
+  startDragRef.current = startDrag
   const updateDrag = (idx) => {
     if (!isDraggingRef.current) return
     dragCurrentRef.current = idx
