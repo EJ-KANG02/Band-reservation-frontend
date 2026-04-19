@@ -110,13 +110,11 @@ export default function ReservationPage() {
   // ── 드래그 상태
   const [isDragging,  setIsDragging]  = useState(false)
   const [dragCurrent, setDragCurrent] = useState(-1)
-  const isDraggingRef = useRef(false)
-  const dragStartRef  = useRef(-1)
-  const dragModeRef   = useRef('select')
-  const gridRef       = useRef(null)
-
-  // isDragging state → ref 동기화
-  useEffect(() => { isDraggingRef.current = isDragging }, [isDragging])
+  const isDraggingRef  = useRef(false)
+  const dragStartRef   = useRef(-1)
+  const dragCurrentRef = useRef(-1)
+  const dragModeRef    = useRef('select')
+  const gridRef        = useRef(null)
 
   // ── 날짜 변경 시 blocked 슬롯 재조회
   useEffect(() => {
@@ -150,7 +148,11 @@ export default function ReservationPage() {
       const touch = e.touches[0]
       const el    = document.elementFromPoint(touch.clientX, touch.clientY)
       const slot  = el?.closest('[data-slot-idx]')
-      if (slot) setDragCurrent(Number(slot.dataset.slotIdx))
+      if (slot) {
+        const idx = Number(slot.dataset.slotIdx)
+        dragCurrentRef.current = idx
+        setDragCurrent(idx)
+      }
     }
     grid.addEventListener('touchmove', onTouchMove, { passive: false })
     return () => grid.removeEventListener('touchmove', onTouchMove)
@@ -172,22 +174,39 @@ export default function ReservationPage() {
 
   const startDrag = (idx) => {
     if (blockedSlots.has(idx)) return
-    dragStartRef.current = idx
-    dragModeRef.current  = selectedSlots.has(idx) ? 'deselect' : 'select'
-    isDraggingRef.current = true
+    dragStartRef.current   = idx
+    dragCurrentRef.current = idx
+    dragModeRef.current    = selectedSlots.has(idx) ? 'deselect' : 'select'
+    isDraggingRef.current  = true
     setIsDragging(true)
     setDragCurrent(idx)
   }
   const updateDrag = (idx) => {
-    if (!isDragging) return
+    if (!isDraggingRef.current) return
+    dragCurrentRef.current = idx
     setDragCurrent(idx)
   }
   const endDrag = () => {
-    if (!isDragging) return
-    setSelectedSlots(new Set(displaySlots))
+    if (!isDraggingRef.current) return
+    isDraggingRef.current = false
+    const start   = dragStartRef.current
+    const current = dragCurrentRef.current
+    setSelectedSlots(prev => {
+      if (start === -1 || current === -1) return prev
+      const lo   = Math.min(start, current)
+      const hi   = Math.max(start, current)
+      const next = new Set(prev)
+      for (let i = lo; i <= hi; i++) {
+        if (blockedSlots.has(i)) continue
+        if (dragModeRef.current === 'select') next.add(i)
+        else next.delete(i)
+      }
+      return next
+    })
     setIsDragging(false)
     setDragCurrent(-1)
-    dragStartRef.current = -1
+    dragStartRef.current   = -1
+    dragCurrentRef.current = -1
   }
 
   // ── 선택 요약
