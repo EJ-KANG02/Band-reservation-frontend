@@ -138,39 +138,6 @@ export default function ReservationPage() {
       .finally(() => setAvailLoading(false))
   }, [selectedDate])
 
-  // ── 터치 (non-passive) 리스너 — selectedDate가 생긴 후 TimeGrid가 마운트되므로 의존성 추가
-  useEffect(() => {
-    if (!selectedDate) return
-    const grid = gridRef.current
-    if (!grid) return
-
-    const onTouchStart = (e) => {
-      const touch = e.touches[0]
-      const el    = document.elementFromPoint(touch.clientX, touch.clientY)
-      const slot  = el?.closest('[data-slot-idx]')
-      if (slot) startDragRef.current(Number(slot.dataset.slotIdx))
-    }
-
-    const onTouchMove = (e) => {
-      e.preventDefault()
-      if (!isDraggingRef.current) return
-      const touch = e.touches[0]
-      const el    = document.elementFromPoint(touch.clientX, touch.clientY)
-      const slot  = el?.closest('[data-slot-idx]')
-      if (slot) {
-        const idx = Number(slot.dataset.slotIdx)
-        dragCurrentRef.current = idx
-        setDragCurrent(idx)
-      }
-    }
-
-    grid.addEventListener('touchstart', onTouchStart, { passive: true })
-    grid.addEventListener('touchmove',  onTouchMove,  { passive: false })
-    return () => {
-      grid.removeEventListener('touchstart', onTouchStart)
-      grid.removeEventListener('touchmove',  onTouchMove)
-    }
-  }, [selectedDate])
 
   // ── 드래그 중 미리보기 슬롯 계산
   const displaySlots = useMemo(() => {
@@ -195,9 +162,6 @@ export default function ReservationPage() {
     setIsDragging(true)
     setDragCurrent(idx)
   }
-  // startDrag를 ref로 유지 — 터치 리스너 클로저 stale 방지
-  const startDragRef = useRef(null)
-  startDragRef.current = startDrag
   const updateDrag = (idx) => {
     if (!isDraggingRef.current) return
     dragCurrentRef.current = idx
@@ -356,10 +320,9 @@ export default function ReservationPage() {
                 displaySlots={displaySlots}
                 blockedSlots={blockedSlots}
                 accentColor={accentColor}
-                onSlotMouseDown={startDrag}
-                onSlotMouseEnter={updateDrag}
-                onMouseUp={endDrag}
-                onTouchEnd={endDrag}
+                onDragStart={startDrag}
+                onDragMove={updateDrag}
+                onDragEnd={endDrag}
               />
             )}
 
@@ -583,18 +546,37 @@ const TimeGrid = ({
   displaySlots,
   blockedSlots,
   accentColor,
-  onSlotMouseDown,
-  onSlotMouseEnter,
-  onMouseUp,
-  onTouchEnd,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
 }) => {
+  const getSlotIdx = (clientX, clientY) => {
+    const el   = document.elementFromPoint(clientX, clientY)
+    const slot = el?.closest('[data-slot-idx]')
+    return slot ? Number(slot.dataset.slotIdx) : null
+  }
+
+  const handlePointerDown = (e) => {
+    const idx = getSlotIdx(e.clientX, e.clientY)
+    if (idx === null) return
+    e.currentTarget.setPointerCapture(e.pointerId)
+    onDragStart(idx)
+  }
+
+  const handlePointerMove = (e) => {
+    if (e.buttons === 0) return
+    const idx = getSlotIdx(e.clientX, e.clientY)
+    if (idx !== null) onDragMove(idx)
+  }
+
   return (
     <div
       ref={containerRef}
       className="rounded-2xl overflow-hidden border border-zinc-900 select-none touch-none"
-      onMouseUp={onMouseUp}
-      onTouchEnd={onTouchEnd}
-      onMouseLeave={onMouseUp}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={onDragEnd}
+      onPointerCancel={onDragEnd}
     >
       {Array.from({ length: TOTAL_SLOTS }, (_, idx) => {
         const isHour     = idx % 2 === 0
@@ -618,8 +600,6 @@ const TimeGrid = ({
             data-slot-idx={idx}
             style={{ height: SLOT_HEIGHT }}
             className={`flex items-center ${borderClass} ${slotColor} transition-colors`}
-            onMouseDown={() => onSlotMouseDown(idx)}
-            onMouseEnter={() => onSlotMouseEnter(idx)}
           >
             {/* 시간 레이블 */}
             <span className="w-12 text-right pr-2.5 shrink-0 text-zinc-700 text-[10px]">
