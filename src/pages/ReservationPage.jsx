@@ -145,7 +145,6 @@ export default function ReservationPage() {
     if (!grid) return
 
     const onTouchStart = (e) => {
-      e.preventDefault()
       const touch = e.touches[0]
       const el    = document.elementFromPoint(touch.clientX, touch.clientY)
       const slot  = el?.closest('[data-slot-idx]')
@@ -165,7 +164,7 @@ export default function ReservationPage() {
       }
     }
 
-    grid.addEventListener('touchstart', onTouchStart, { passive: false })
+    grid.addEventListener('touchstart', onTouchStart, { passive: true })
     grid.addEventListener('touchmove',  onTouchMove,  { passive: false })
     return () => {
       grid.removeEventListener('touchstart', onTouchStart)
