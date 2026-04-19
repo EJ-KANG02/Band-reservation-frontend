@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.jsx'
 import './index.css'
 
-const APP_VERSION = '1.5'
+const APP_VERSION = '1.6'
 
 const storedVersion = localStorage.getItem('appVersion')
 if (storedVersion !== APP_VERSION) {
