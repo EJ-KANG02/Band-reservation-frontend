@@ -132,6 +132,21 @@ export default function ReservationPage() {
           const e = Math.ceil(timeToSlotFloat(endTime)) - 1
           for (let i = Math.max(0, s); i <= Math.min(TOTAL_SLOTS - 1, e); i++) blocked.add(i)
         })
+
+        // 과거 날짜 또는 오늘의 지난 슬롯 차단
+        const now        = new Date()
+        const todayStr   = toDateStr(now)
+        const selectedStr = toDateStr(selectedDate)
+        if (selectedStr < todayStr) {
+          for (let i = 0; i < TOTAL_SLOTS; i++) blocked.add(i)
+        } else if (selectedStr === todayStr) {
+          const nowMinutes = now.getHours() * 60 + now.getMinutes()
+          const lastBlocked = Math.floor((nowMinutes - SLOT_START * 60) / 30)
+          for (let i = 0; i <= lastBlocked; i++) {
+            if (i >= 0) blocked.add(i)
+          }
+        }
+
         setBlockedSlots(blocked)
       })
       .catch(() => {})
