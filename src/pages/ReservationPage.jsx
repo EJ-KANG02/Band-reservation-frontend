@@ -138,8 +138,13 @@ export default function ReservationPage() {
       .finally(() => setAvailLoading(false))
   }, [selectedDate])
 
-  // ── 터치 (non-passive) 리스너
+  // startDrag를 ref로 유지 — 클로저 stale 방지
+  const startDragRef = useRef(null)
+  startDragRef.current = startDrag
+
+  // ── 터치 (non-passive) 리스너 — selectedDate가 생긴 후 TimeGrid가 마운트되므로 의존성 추가
   useEffect(() => {
+    if (!selectedDate) return
     const grid = gridRef.current
     if (!grid) return
 
@@ -148,7 +153,7 @@ export default function ReservationPage() {
       const touch = e.touches[0]
       const el    = document.elementFromPoint(touch.clientX, touch.clientY)
       const slot  = el?.closest('[data-slot-idx]')
-      if (slot) startDrag(Number(slot.dataset.slotIdx))
+      if (slot) startDragRef.current(Number(slot.dataset.slotIdx))
     }
 
     const onTouchMove = (e) => {
@@ -170,8 +175,7 @@ export default function ReservationPage() {
       grid.removeEventListener('touchstart', onTouchStart)
       grid.removeEventListener('touchmove',  onTouchMove)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [selectedDate])
 
   // ── 드래그 중 미리보기 슬롯 계산
   const displaySlots = useMemo(() => {
