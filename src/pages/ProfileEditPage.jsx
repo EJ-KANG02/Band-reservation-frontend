@@ -1,58 +1,21 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getUserInfo, updateUserInfo } from '../api/auth'
+import { updateUserInfo } from '../api/auth'
 import BackButton from '../components/BackButton'
 
 export default function ProfileEditPage() {
   const navigate = useNavigate()
+  const teamNameInit = localStorage.getItem('userTeamName') || ''
   const [form, setForm] = useState({
-    nickname: '',
-    teamName: '',
-    name: '',
-    studentId: '',
+    nickname:  localStorage.getItem('userNickname')  || '',
+    teamName:  teamNameInit,
+    name:      localStorage.getItem('userName')      || '',
+    studentId: localStorage.getItem('userStudentId') || '',
   })
-  const [originalTeamName, setOriginalTeamName] = useState('')
+  const [originalTeamName] = useState(teamNameInit)
   const [loading, setLoading] = useState(false)
-  const [fetchLoading, setFetchLoading] = useState(true)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-
-  useEffect(() => {
-    getUserInfo()
-      .then((res) => {
-        if (res.isSuccess && res.result) {
-          const r = res.result
-          // API 응답으로 localStorage 캐시 갱신
-          localStorage.setItem('userNickname',  r.nickname          || '')
-          localStorage.setItem('userTeamName',  r.teamName          || '')
-          localStorage.setItem('userName',      r.name              || '')
-          localStorage.setItem('userStudentId', r.studentId         || '')
-          localStorage.setItem('userRole',      r.role              || '')
-          localStorage.setItem('userBatch',     r.batch     != null ? String(r.batch) : '')
-          localStorage.setItem('userPosition',  r.position          || '')
-          const teamName = r.teamName || ''
-          setOriginalTeamName(teamName)
-          setForm({
-            nickname:  r.nickname  || '',
-            teamName,
-            name:      r.name      || '',
-            studentId: r.studentId || '',
-          })
-        }
-      })
-      .catch(() => {
-        // API 실패 시 localStorage 캐시로 폴백
-        const teamName = localStorage.getItem('userTeamName') || ''
-        setOriginalTeamName(teamName)
-        setForm({
-          nickname:  localStorage.getItem('userNickname')  || '',
-          teamName,
-          name:      localStorage.getItem('userName')      || '',
-          studentId: localStorage.getItem('userStudentId') || '',
-        })
-      })
-      .finally(() => setFetchLoading(false))
-  }, [])
 
   const handleChange = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -92,7 +55,7 @@ export default function ProfileEditPage() {
     }
   }
 
-  if (fetchLoading) return null
+
 
   return (
     <div className="min-h-screen bg-black flex flex-col px-6 safe-top safe-bottom pb-8">

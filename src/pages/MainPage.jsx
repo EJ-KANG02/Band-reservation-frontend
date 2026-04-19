@@ -1,26 +1,9 @@
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getUserInfo } from '../api/auth'
 import FDLogo from '../components/FDLogo'
 
 export default function MainPage() {
   const navigate = useNavigate()
-  const [nickname, setNickname] = useState(localStorage.getItem('userNickname') || '')
-
-  useEffect(() => {
-    getUserInfo()
-      .then((res) => {
-        if (res.isSuccess && res.result) {
-          const r = res.result
-          setNickname(r.nickname || '')
-          if (r.nickname)  localStorage.setItem('userNickname',  r.nickname)
-          if (r.teamName)  localStorage.setItem('userTeamName',  r.teamName)
-          if (r.name)      localStorage.setItem('userName',      r.name)
-          if (r.studentId) localStorage.setItem('userStudentId', r.studentId)
-        }
-      })
-      .catch(() => {})
-  }, [])
+  const nickname = localStorage.getItem('userNickname') || ''
 
   return (
     <div className="min-h-screen bg-black flex flex-col px-6 safe-top safe-bottom">
