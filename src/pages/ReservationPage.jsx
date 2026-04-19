@@ -557,7 +557,7 @@ const TimeGrid = ({
   return (
     <div
       ref={containerRef}
-      className="rounded-2xl overflow-hidden border border-zinc-900 select-none"
+      className="rounded-2xl overflow-hidden border border-zinc-900 select-none touch-none"
       onMouseUp={onMouseUp}
       onTouchEnd={onTouchEnd}
       onMouseLeave={onMouseUp}
