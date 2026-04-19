@@ -138,13 +138,22 @@ export default function ReservationPage() {
       .finally(() => setAvailLoading(false))
   }, [selectedDate])
 
-  // ── 터치 이동 (non-passive) 리스너
+  // ── 터치 (non-passive) 리스너
   useEffect(() => {
     const grid = gridRef.current
     if (!grid) return
-    const onTouchMove = (e) => {
-      if (!isDraggingRef.current) return
+
+    const onTouchStart = (e) => {
       e.preventDefault()
+      const touch = e.touches[0]
+      const el    = document.elementFromPoint(touch.clientX, touch.clientY)
+      const slot  = el?.closest('[data-slot-idx]')
+      if (slot) startDrag(Number(slot.dataset.slotIdx))
+    }
+
+    const onTouchMove = (e) => {
+      e.preventDefault()
+      if (!isDraggingRef.current) return
       const touch = e.touches[0]
       const el    = document.elementFromPoint(touch.clientX, touch.clientY)
       const slot  = el?.closest('[data-slot-idx]')
@@ -154,8 +163,14 @@ export default function ReservationPage() {
         setDragCurrent(idx)
       }
     }
-    grid.addEventListener('touchmove', onTouchMove, { passive: false })
-    return () => grid.removeEventListener('touchmove', onTouchMove)
+
+    grid.addEventListener('touchstart', onTouchStart, { passive: false })
+    grid.addEventListener('touchmove',  onTouchMove,  { passive: false })
+    return () => {
+      grid.removeEventListener('touchstart', onTouchStart)
+      grid.removeEventListener('touchmove',  onTouchMove)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // ── 드래그 중 미리보기 슬롯 계산
@@ -341,7 +356,6 @@ export default function ReservationPage() {
                 accentColor={accentColor}
                 onSlotMouseDown={startDrag}
                 onSlotMouseEnter={updateDrag}
-                onContainerTouchStart={startDrag}
                 onMouseUp={endDrag}
                 onTouchEnd={endDrag}
               />
@@ -569,23 +583,14 @@ const TimeGrid = ({
   accentColor,
   onSlotMouseDown,
   onSlotMouseEnter,
-  onContainerTouchStart,
   onMouseUp,
   onTouchEnd,
 }) => {
-  const handleTouchStart = (e) => {
-    const touch = e.touches[0]
-    const el = document.elementFromPoint(touch.clientX, touch.clientY)
-    const slot = el?.closest('[data-slot-idx]')
-    if (slot) onContainerTouchStart(Number(slot.dataset.slotIdx))
-  }
-
   return (
     <div
       ref={containerRef}
       className="rounded-2xl overflow-hidden border border-zinc-900 select-none touch-none"
       onMouseUp={onMouseUp}
-      onTouchStart={handleTouchStart}
       onTouchEnd={onTouchEnd}
       onMouseLeave={onMouseUp}
     >
