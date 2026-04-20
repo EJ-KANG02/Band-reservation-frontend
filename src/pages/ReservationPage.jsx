@@ -214,7 +214,8 @@ export default function ReservationPage() {
       + `  ·  ${minutesToLabel(totalMin)}`
 
   // ── 제출
-  const canSubmit = category && selectedDate && displaySlots.size > 0 && !submitting && !noTeamForEnsemble
+  const editMultiRange = isEditMode && ranges.length > 1
+  const canSubmit = category && selectedDate && displaySlots.size > 0 && !submitting && !noTeamForEnsemble && !editMultiRange
   const handleSubmit = async () => {
     if (!canSubmit) return
     setError('')
@@ -362,6 +363,16 @@ export default function ReservationPage() {
                 : `주당 최대 ${appSettings.ensembleMaxCountPerWeek}회 · 하루 최대 ${appSettings.ensembleMaxTime}시간`
               }
             </p>
+
+            {/* 수정 모드: 분리된 범위 경고 */}
+            {editMultiRange && (
+              <div className="bg-amber-500/10 border border-amber-500/25 rounded-xl px-3.5 py-3 mt-3">
+                <p className="text-amber-400 text-xs leading-relaxed">
+                  수정 시에는 <span className="font-bold">하나의 연속된 시간대</span>만 선택할 수 있습니다.
+                  드래그로 연속된 시간대를 다시 선택해주세요.
+                </p>
+              </div>
+            )}
           </Section>
         )}
 
@@ -587,11 +598,7 @@ const TimeGrid = ({
   return (
     <div
       ref={containerRef}
-      className="rounded-2xl overflow-hidden border border-zinc-900 select-none touch-none"
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={onDragEnd}
-      onPointerCancel={onDragEnd}
+      className="rounded-2xl overflow-hidden border border-zinc-900 select-none"
     >
       {Array.from({ length: TOTAL_SLOTS }, (_, idx) => {
         const isHour     = idx % 2 === 0
@@ -599,11 +606,9 @@ const TimeGrid = ({
         const isSelected = displaySlots.has(idx)
         const label      = isHour ? slotToLabel(idx) : ''
 
-        const slotColor = isSelected
+        const barBg = isSelected
           ? accentColor === 'blue' ? 'bg-blue-500' : 'bg-orange-400'
-          : isBlocked
-            ? 'bg-zinc-900/80 cursor-not-allowed'
-            : 'bg-zinc-900/40 cursor-pointer'
+          : isBlocked ? 'bg-zinc-800/60' : 'bg-zinc-900/40'
 
         const borderClass = isHour
           ? 'border-t border-zinc-800'
@@ -612,26 +617,32 @@ const TimeGrid = ({
         return (
           <div
             key={idx}
-            data-slot-idx={idx}
             style={{ height: SLOT_HEIGHT }}
-            className={`flex items-center ${borderClass} ${slotColor} transition-colors`}
+            className={`flex items-center ${borderClass}`}
           >
             {/* 시간 레이블 */}
             <span className="w-12 text-right pr-2.5 shrink-0 text-zinc-700 text-[10px]">
               {label}
             </span>
 
-            {/* 슬롯 바 */}
-            <div className={`flex-1 h-full flex items-center justify-center
-              ${isSelected
-                ? accentColor === 'blue' ? 'bg-blue-500' : 'bg-orange-400'
-                : isBlocked ? 'bg-zinc-800/60' : ''
-              }`}
+            {/* 드래그 영역 (touch-none) */}
+            <div
+              data-slot-idx={idx}
+              style={{ touchAction: 'none' }}
+              className={`flex-1 h-full flex items-center justify-center
+                ${barBg} ${isBlocked ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={onDragEnd}
+              onPointerCancel={onDragEnd}
             >
               {isBlocked && (
                 <span className="text-zinc-600 text-[10px] font-bold">✕</span>
               )}
             </div>
+
+            {/* 스크롤 여백 (터치 스크롤 가능) */}
+            <div className={`w-10 h-full shrink-0 ${barBg}`} />
           </div>
         )
       })}
