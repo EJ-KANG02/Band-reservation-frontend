@@ -120,7 +120,9 @@ export default function ReservationPage() {
   useEffect(() => {
     if (!selectedDate) return
     setBlockedSlots(new Set())
-    setSelectedSlots(new Set())
+    // 수정 모드 + 원래 예약 날짜일 때는 미리 채워진 슬롯 유지, 날짜 변경 시에만 초기화
+    const isEditInitialDate = isEditMode && editReservation?.date === toDateStr(selectedDate)
+    if (!isEditInitialDate) setSelectedSlots(new Set())
     setError('')
     setAvailLoading(true)
     checkAvailability(toDateStr(selectedDate))
@@ -128,6 +130,8 @@ export default function ReservationPage() {
         if (!res.isSuccess) return
         const blocked = new Set()
         ;(res.result || []).forEach(({ startTime, endTime }) => {
+          // 수정 모드에서 현재 편집 중인 예약의 시간대는 차단하지 않음
+          if (isEditMode && startTime === editReservation?.startTime && endTime === editReservation?.endTime) return
           const s = Math.floor(timeToSlotFloat(startTime))
           const e = Math.ceil(timeToSlotFloat(endTime)) - 1
           for (let i = Math.max(0, s); i <= Math.min(TOTAL_SLOTS - 1, e); i++) blocked.add(i)
